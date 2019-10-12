@@ -53,7 +53,7 @@ urlencode(const char *src, char *dest, int destlen)
 			p = end; // not enough space
 		} else {
 			*p++ = '%';
-			unsigned char foo = *p;
+			unsigned char foo = *s;
 			*p++ = hexchars[foo >> 4];
 			*p++ = hexchars[*s & 15];
 			s++;

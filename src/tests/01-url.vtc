@@ -21,7 +21,6 @@ varnish v1 -vcl+backend {
 client c1 {
 	txreq -url "/" -hdr "Foo: hello you"
 	rxresp
-        # FIXME
-	expect resp.http.encoded == "hello%00you"
+	expect resp.http.encoded == "hello%20you"
 	expect resp.http.decoded == "hello you"
 } -run
