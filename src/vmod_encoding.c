@@ -5,80 +5,39 @@
 
 #include "cache/cache.h"
 
-#include "vtim.h"
 #include "vcc_encoding_if.h"
-
-const size_t infosz = 64;
-char	     *info;
-
-/*
- * handle vmod internal state, vmod init/fini and/or varnish callback
- * (un)registration here.
- *
- * malloc'ing the info buffer is only indended as a demonstration, for any
- * real-world vmod, a fixed-sized buffer should be a global variable
- */
 
 int v_matchproto_(vmod_event_f)
 vmod_event_function(VRT_CTX, struct vmod_priv *priv, enum vcl_event_e e)
 {
-	char	   ts[VTIM_FORMAT_SIZE];
-	const char *event = NULL;
+	return(0);
+}
 
-	(void) ctx;
-	(void) priv;
 
-	switch (e) {
-	case VCL_EVENT_LOAD:
-		info = malloc(infosz);
-		if (! info)
-			return (-1);
-		event = "loaded";
-		break;
-	case VCL_EVENT_WARM:
-		event = "warmed";
-		break;
-	case VCL_EVENT_COLD:
-		event = "cooled";
-		break;
-	case VCL_EVENT_DISCARD:
-		free(info);
-		return (0);
-		break;
-	default:
-		return (0);
-	}
-	AN(event);
-	VTIM_format(VTIM_real(), ts);
-	snprintf(info, infosz, "vmod_encoding %s at %s", event, ts);
-
-	return (0);
+VCL_STRING
+vmod_urlencode(VRT_CTX, VCL_STRING s)
+{
+	(void)ctx;
+	return(NULL);
 }
 
 VCL_STRING
-vmod_info(VRT_CTX)
+vmod_urldecode(VRT_CTX, VCL_STRING s)
 {
-	(void) ctx;
-
-	return (info);
+	(void)ctx;
+	return(NULL);
 }
 
 VCL_STRING
-vmod_hello(VRT_CTX, VCL_STRING name)
+vmod_b64encode(VRT_CTX, VCL_STRING s)
 {
-	char *p;
-	unsigned u, v;
+	(void)ctx;
+	return(NULL);
+}
 
-	u = WS_Reserve(ctx->ws, 0); /* Reserve some work space */
-	p = ctx->ws->f;		/* Front of workspace area */
-	v = snprintf(p, u, "Hello, %s", name);
-	v++;
-	if (v > u) {
-		/* No space, reset and leave */
-		WS_Release(ctx->ws, 0);
-		return (NULL);
-	}
-	/* Update work space with what we've used */
-	WS_Release(ctx->ws, v);
-	return (p);
+VCL_STRING
+vmod_b64decode(VRT_CTX, VCL_STRING s)
+{
+	(void)ctx;
+	return(NULL);
 }

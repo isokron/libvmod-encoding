@@ -4,7 +4,10 @@ AM_LDFLAGS = $(VARNISHAPI_LIBS) $(VMOD_LDFLAGS)
 vmod_LTLIBRARIES = libvmod_encoding.la
 
 libvmod_encoding_la_SOURCES = \
-	vmod_encoding.c
+	vmod_encoding.c \
+	urlcode.c \
+	base64.h \
+	base64.c \
 
 nodist_libvmod_encoding_la_SOURCES = \
 	vcc_encoding_if.c \

@@ -7,30 +7,16 @@ server s1 {
 
 varnish v1 -vcl+backend {
 	import std;
-	import ${vmod_encoding};
-
-	sub vcl_init {
-		std.log(encoding.info());
-	}
+	import encoding from "${pwd}/../.libs/libvmod_encoding.so";
 
 	sub vcl_deliver {
-		set resp.http.hello = encoding.hello("World");
-		set resp.http.info = encoding.info();
+		set resp.http.foo = encoding.b64encode(req.http.foo);
+		set resp.http.bar = encoding.b64decode(resp.http.foo);
 	}
-} -start
-
-logexpect l1 -v v1 -g raw -d 1 {
-	expect 0 0    CLI     {^Rd vcl.load}
-	expect 0 =    VCL_Log {^vmod_encoding loaded at }
 } -start
 
 client c1 {
-	txreq -url "/"
+	txreq -url "/" -hdr "Foo: hello you"
 	rxresp
-	expect resp.http.hello == "Hello, World"
-	expect resp.http.info  ~  "^vmod_encoding warmed at "
-}
-
-client c1 -run
-
-logexpect l1 -wait
+	expect resp.http.bar == "hello you"
+} -run

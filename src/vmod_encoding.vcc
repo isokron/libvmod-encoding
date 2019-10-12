@@ -1,7 +1,5 @@
 #
-# Copyright YOU (c) 1900.
-#
-# (vmodtool requires this format.)
+# Copyright Isokron AS (c) 2019
 #
 
 $Module encoding 3 Encoding VMOD
@@ -9,22 +7,25 @@ $Module encoding 3 Encoding VMOD
 DESCRIPTION
 ===========
 
-This is the embedded documentation for the encoding VMOD. It should
-mention what the vmod is intended to do.
+This vmod adds simple and readable encoding (base64 and URL encoding) in
+Varnish VCL.
 
-It can span multiple lines and is written in RST format.
-You can even have links and lists in here:
+Relevant:
+* https://www.ietf.org/rfc/rfc3986.txt - Uniform Resource Identifier (URI): Generic Syntax
 
-* https://github.com/varnish/libvmod-encoding/
-* https://www.varnish-cache.org/
 
 $Event event_function
-$Function STRING info()
+$Function STRING urlencode(STRING s)
 
-Returns a string set by the last VCL event, demonstrating the use of
-event functions.
+$Function STRING urldecode(STRING s)
+
+$Function STRING b64encode(STRING s)
+
+TODO: STRING b64encode(STRING s, dialect=NOPAD_URL)
+
+$Function STRING b64decode(STRING s)
+
+TODO: STRING b64decode(STRING s, dialect=NOPAD_URL)
 
 $Function STRING hello(STRING)
 
-The different functions provided by the VMOD should also have their own
-embedded documentation. This section is for the hello() function.
