@@ -1,0 +1,27 @@
+varnishtest "Test url encoding"
+
+server s1 {
+       rxreq
+       txresp
+} -start
+
+varnish v1 -vcl+backend {
+	import std;
+	import encoding from "${pwd}/../.libs/libvmod_encoding.so";
+
+	sub vcl_deliver {
+		set resp.http.encoded = encoding.urlencode(req.http.foo);
+                std.log("encoded: " + resp.http.encoded);
+
+		set resp.http.decoded = encoding.urldecode(resp.http.encoded);
+                std.log("decoded: " + resp.http.decoded);
+	}
+} -start
+
+client c1 {
+	txreq -url "/" -hdr "Foo: hello you"
+	rxresp
+        # FIXME
+	expect resp.http.encoded == "hello%00you"
+	expect resp.http.decoded == "hello you"
+} -run

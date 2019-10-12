@@ -6,8 +6,9 @@ vmod_LTLIBRARIES = libvmod_encoding.la
 libvmod_encoding_la_SOURCES = \
 	vmod_encoding.c \
 	urlcode.c \
+	urlcode.h \
 	base64.h \
-	base64.c \
+	base64.c
 
 nodist_libvmod_encoding_la_SOURCES = \
 	vcc_encoding_if.c \

@@ -17,6 +17,8 @@ Relevant:
 $Event event_function
 $Function STRING urlencode(STRING s)
 
+URLencode string `s` and return a string.
+
 $Function STRING urldecode(STRING s)
 
 $Function STRING b64encode(STRING s)
@@ -26,6 +28,4 @@ TODO: STRING b64encode(STRING s, dialect=NOPAD_URL)
 $Function STRING b64decode(STRING s)
 
 TODO: STRING b64decode(STRING s, dialect=NOPAD_URL)
-
-$Function STRING hello(STRING)
 
