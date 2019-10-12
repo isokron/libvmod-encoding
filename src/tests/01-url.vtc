@@ -7,7 +7,7 @@ server s1 {
 
 varnish v1 -vcl+backend {
 	import std;
-	import encoding from "${pwd}/../.libs/libvmod_encoding.so";
+	import ${vmod_encoding};
 
 	sub vcl_deliver {
 		set resp.http.encoded = encoding.urlencode(req.http.foo);
