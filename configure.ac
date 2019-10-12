@@ -1,13 +1,13 @@
 AC_PREREQ([2.68])
-AC_INIT([libvmod-encoding], [0.1], [], [vmod-encoding])
-AC_COPYRIGHT([Public Domain])
+AC_INIT([libvmod-encoding], [0.8.0], [lasse@isokron.no], [vmod-encoding])
+AC_COPYRIGHT([Isokron AS, 2019.])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/vmod_encoding.vcc)
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign parallel-tests])
-AM_SILENT_RULES([yes])
+AM_SILENT_RULES([no])
 AM_PROG_AR
 
 LT_PREREQ([2.2.6])
