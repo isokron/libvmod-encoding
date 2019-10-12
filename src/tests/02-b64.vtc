@@ -1,0 +1,26 @@
+varnishtest "Test base64 encoding"
+
+server s1 {
+       rxreq
+       txresp
+} -start
+
+varnish v1 -vcl+backend {
+	import std;
+	import encoding from "${pwd}/../.libs/libvmod_encoding.so";
+
+	sub vcl_deliver {
+		set resp.http.encoded = encoding.b64encode(req.http.foo);
+                std.log("encoded: " + resp.http.encoded);
+
+		set resp.http.decoded = encoding.b64decode(resp.http.encoded);
+                std.log("decoded: " + resp.http.decoded);
+	}
+} -start
+
+client c1 {
+	txreq -url "/" -hdr "Foo: hello you"
+	rxresp
+	expect resp.http.encoded == "aGVsbG8geW91"
+	expect resp.http.decoded == "hello you"
+} -run
