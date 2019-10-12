@@ -12,6 +12,8 @@ DESCRIPTION
 
 This vmod implements string encoding functions for Varnish VCL.
 
+Target version is Varnish 6.0 (lts).
+
 Currently implemented:
 
 * URL encoding (based off the abandoned libvmod-urlcode)
