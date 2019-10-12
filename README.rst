@@ -1,12 +1,6 @@
-============
+=============
 vmod-encoding
-============
-
-notice
-------
-
-For new developments, we recommend to consider using
-https://github.com/Dridi/vcdk
+=============
 
 SYNOPSIS
 ========
@@ -16,112 +10,61 @@ import encoding;
 DESCRIPTION
 ===========
 
-Encoding Varnish vmod demonstrating how to write an out-of-tree Varnish vmod.
+This vmod implements string encoding functions for Varnish VCL.
 
-Implements the traditional Hello World as a vmod.
+Currently implemented:
+* URL encoding (based off the abandoned libvmod-urlcode)
+* base64 (adapted from postgresql)
 
-FUNCTIONS
-=========
+See `src/vmod_encoding.vcc` for usage documentation.
 
-hello
------
+Main goal: simple and non-complicate use in VCL.
 
-Prototype
-        ::
+Non-goals:
+* comprehensive set of encodings. A bare minimum of what is needed for
+semi-complicated to advanced Varnish configurations is enough.
 
-                hello(STRING S)
-Return value
-	STRING
-Description
-	Returns "Hello, " prepended to S
-Encoding
-        ::
 
-                set resp.http.hello = encoding.hello("World");
-
-INSTALLATION
-============
-
-The source tree is based on autotools to configure the building, and
-does also have the necessary bits in place to do functional unit tests
-using the ``varnishtest`` tool.
-
-Building requires the Varnish header files and uses pkg-config to find
-the necessary paths.
-
-Usage::
-
- ./autogen.sh
- ./configure
-
-If you have installed Varnish to a non-standard directory, call
-``autogen.sh`` and ``configure`` with ``PKG_CONFIG_PATH`` pointing to
-the appropriate path. For instance, when varnishd configure was called
-with ``--prefix=$PREFIX``, use
+SAMPLE VCL
+==========
 
 ::
+    import encoding;
 
- export PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
- export ACLOCAL_PATH=${PREFIX}/share/aclocal
+    sub vcl_recv {
+        set req.http.enc = encoding.urlencode(req.http.Referer);
+        set req.http.foo = encoding.b64decode(req.http.Authorization);
 
-The module will inherit its prefix from Varnish, unless you specify a
-different ``--prefix`` when running the ``configure`` script for this
-module.
-
-Make targets:
-
-* make - builds the vmod.
-* make install - installs your vmod.
-* make check - runs the unit tests in ``src/tests/*.vtc``.
-* make distcheck - run check and prepare a tarball of the vmod.
-
-If you build a dist tarball, you don't need any of the autotools or
-pkg-config. You can build the module simply by running::
-
- ./configure
- make
-
-Installation directories
-------------------------
-
-By default, the vmod ``configure`` script installs the built vmod in the
-directory relevant to the prefix. The vmod installation directory can be
-overridden by passing the ``vmoddir`` variable to ``make install``.
-
-USAGE
-=====
-
-In your VCL you could then use this vmod along the following lines::
-
-        import encoding;
-
-        sub vcl_deliver {
-                # This sets resp.http.hello to "Hello, World"
-                set resp.http.hello = encoding.hello("World");
+        if (req.url ~ "/login") {
+            return(synth(1302));
         }
+    }
 
-COMMON PROBLEMS
-===============
+    sub vcl_synth {
+        if (resp.status == 1302) {
+            set resp.status = 302;
+            set req.http.x-tmp = "https://" + req.http.host + req.url;
+            set resp.http.Location = "https://accounts.google.com/authorize?scope=openid&redirect_uri=" + encoding.urlencode(req.http.x-tmp);
+            return(deliver);
+        }
+    }
 
-* configure: error: Need varnish.m4 -- see README.rst
+The main use case is for cleaner OAuth2 in Varnish.
 
-  Check whether ``PKG_CONFIG_PATH`` and ``ACLOCAL_PATH`` were set correctly
-  before calling ``autogen.sh`` and ``configure``
+LICENSE
+=======
 
-* Incompatibilities with different Varnish Cache versions
+The combined vmod and documentation is licensed under GNU GPLv2.
 
-  Make sure you build this vmod against its correspondent Varnish Cache version.
-  For instance, to build against Varnish Cache 4.1, this vmod must be built from
-  branch 4.1.
+Original code in `src/base64.c` is licensed under the PostgreSQL license.
+(BSD/MIT similar)
 
-START YOUR OWN VMOD
-===================
+Original code in `src/urlcode.c` is licensed under 2-clause BSD.
 
-The basic steps to start a new vmod from this encoding are::
 
-  name=myvmod
-  git clone libvmod-encoding libvmod-$name
-  cd libvmod-$name
-  ./rename-vmod-script $name
+See LICENSE file for more information.
 
-and follow the instructions output by rename-vmod-script
+AUTHOR
+======
+
+Authored by Lasse Karstensen <lasse@isokron.no>.
