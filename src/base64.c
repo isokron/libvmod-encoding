@@ -247,17 +247,17 @@ pg_b64_dec_len(int srclen)
 #ifndef NDEBUG
 #include <stdio.h>
 
-void enc_and_dec(char * buf) {
-	int enclen = pg_b64_enc_len(strlen(buf)) * 2;
 
+void enc_and_dec(char * buf) {
+	int enclen = pg_b64_enc_len(strlen(buf));
 	char encoded[enclen];
 	memset(encoded, '\0', enclen);
 	int len = pg_b64_encode(buf, strlen(buf), encoded, enclen);
 	if (len < 0) return;
 
-	printf("Encoded text is: \"%s\" (%i bytes in %lu sized buffer)\n", encoded, len, sizeof(encoded));
+	// printf("Encoded text is: \"%s\" (%i bytes in %lu sized buffer)\n", encoded, len, sizeof(encoded));
 
-	int declen = pg_b64_dec_len(strlen(encoded)) * 2;
+	int declen = pg_b64_dec_len(strlen(encoded));
 	char decoded[declen];
 	memset(decoded, '\0', declen);
 
@@ -265,13 +265,14 @@ void enc_and_dec(char * buf) {
 	if (len < 0) return;
 
     // extern int pg_b64_decode(const char *src, int len, char *dst, int dstlen);
-	printf("Decoded text is: \"%s\" (%d==%lu bytes in %lu byte buffer)", decoded, len, strlen(decoded), sizeof(decoded) );
+	// printf("Decoded text is: \"%s\" (%d==%lu bytes in %lu byte buffer)", decoded, len, strlen(decoded), sizeof(decoded) );
 	return;
 }
 #endif
 
 #ifdef FUZZER
 #include <ctype.h>
+#include <sys/types.h>
 int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
 	for (int i=0; i<sz; i++) {
 		if (data[i] > 128) {
@@ -281,7 +282,7 @@ int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
 	char buf[sz+1];
 	memcpy(buf, data, sz);
 	buf[sz+1] = '\0';
-	printf("%s\n", buf);
+	// printf("%s\n", buf);
 	enc_and_dec(buf);
 	return(0);
 }
