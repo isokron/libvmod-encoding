@@ -13,6 +13,7 @@ DESCRIPTION
 This vmod implements string encoding functions for Varnish VCL.
 
 Currently implemented:
+
 * URL encoding (based off the abandoned libvmod-urlcode)
 * base64 (adapted from postgresql)
 
@@ -21,6 +22,7 @@ See `src/vmod_encoding.vcc` for usage documentation.
 Main goal: simple and non-complicate use in VCL.
 
 Non-goals:
+
 * comprehensive set of encodings. A bare minimum of what is needed for
 semi-complicated to advanced Varnish configurations is enough.
 
@@ -29,6 +31,7 @@ SAMPLE VCL
 ==========
 
 ::
+
     import encoding;
 
     sub vcl_recv {
