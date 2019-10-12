@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "urlcode.h"
+
 static char hexchars[] = "0123456789ABCDEF";
 
 #define visalpha(c) \
@@ -29,9 +31,9 @@ hex_to_int(char c)
 
 
 uint32_t
-urlencode(char *src, char *dest, int destlen)
+urlencode(const char *src, char *dest, int destlen)
 {
-	char *s = src;  // reading ptr
+	char *s = (char *)src;  // reading ptr
 	char *p = dest;  // writing ptr
 	char *end = dest+destlen;
 
@@ -70,9 +72,9 @@ urlencode(char *src, char *dest, int destlen)
 
 
 uint32_t
-urldecode(char * src, char *dest, int destlen)
+urldecode(const char *src, char *dest, int destlen)
 {
-	char *s = src;
+	char *s = (char *)src;
 	char *p = dest;
 	char *end = dest+destlen;
 
@@ -130,29 +132,58 @@ urldecode(char * src, char *dest, int destlen)
 
 
 #ifndef NDEBUG
+#include <assert.h>
+
+static char *cases[] = {
+	"foo and bar with a / in it",
+	"https://example.org/index.html#fragment",
+	"https://example.org/index.html?foo=bar&baz=qux#fragment",
+	"utf8-åæø-ÅÆØ-all-the-way",
+};
+int n_cases = sizeof(cases) / sizeof(cases[0]);
+
 void test_enc() {
-	char src[] = "foo and bar with a / in it";
-	int len;
-	int buflen = 100;
+	int len, buflen = 100;
 	char dst[buflen];
-	memset(dst, '\0', buflen);
-	len = urlencode((char *)&src, (char *)&dst, buflen);
-	printf("len=%i dst=\"%s\"\n", len, dst);
+	for (int i=0; i<n_cases; i++) {
+		memset(dst, '\0', buflen);
+		assert(strlen(cases[i]) < buflen);
+		len = urlencode(cases[i], (char *)&dst, buflen);
+		printf("len=%i dst=\"%s\"\n", len, dst);
+	}
 }
 
 void test_dec() {
-	int len;
-	int buflen = 100;
-	// char src[] = "foo%20bar";
-//	char src[] = "a-umlaut-%c3%a4";
-	char src[] = "http://example.org/\"%<>\\^`{|}";
+	const char src[] = "foo%20and%20bar";
+	int len, buflen = 100;
 	char dst[buflen];
 	memset(dst, '\0', buflen);
 	len = urldecode((char *)&src, (char *)&dst, buflen);
 	printf("len=%i dst=\"%s\"\n", len, dst);
 }
 
+void test_both() {
+	int len, buflen = 100;
+	char dst[buflen];
+	char decoded[buflen];
+
+	for (int i=0; i<n_cases; i++) {
+		printf("\n");
+		memset(dst, '\0', buflen);
+		len = urlencode(cases[i], (char *)&dst, buflen);
+		printf("len=%i dst=\"%s\"\n", len, dst);
+
+		memset(decoded, '\0', buflen);
+		len = urldecode(dst, (char *)&decoded, buflen);
+		printf("len=%i decoded=\"%s\"\n", len, decoded);
+
+		assert(strcmp(decoded, cases[i]) == 0);
+	}
+}
+
 int main() {
 	test_enc();
+ 	test_dec();
+	test_both();
 }
 #endif
