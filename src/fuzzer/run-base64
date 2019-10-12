@@ -1,0 +1,4 @@
+#!/bin/bash
+
+clang -D TESTRUNNER -g -O1 -fsanitize=fuzzer ../base64.c  && ./a.out -max_len=100 corpus/
+
