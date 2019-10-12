@@ -8,9 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*
 static char hexchars[] = "0123456789ABCDEF";
-*/
+
 #define visalpha(c) \
 	((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 #define visalnum(c) \
@@ -29,49 +28,46 @@ hex_to_int(char c)
 }
 
 
-/*
 uint32_t
-urlencode(const char *src, char *dst, int destlen)
+urlencode(char *src, char *dest, int destlen)
 {
-	char *b, *e;
-	unsigned u;
-	va_list ap;
+	char *s = src;  // reading ptr
+	char *p = dest;  // writing ptr
+	char *end = dest+destlen;
 
-	u = WS_Reserve(ctx->ws, 0);
-	e = b = ctx->ws->f;
-	e += u;
-	va_start(ap, str);
-	while (b < e && str != vrt_magic_string_end) {
-		while (b < e && str && *str) {
-			if (visalnum((int) *str) || *str == '-' || *str == '.'
-			    || *str ==  '_' || *str ==  '~') { // RFC3986 2.3 
-				*b++ = *str++;
-			} else if (b + 4 >= e) { // % hex hex NULL
-				b = e; // not enough space 
-			} else {
-				*b++ = '%';
-				unsigned char foo = *str;
-				*b++ = hexchars[foo >> 4];
-				*b++ = hexchars[*str & 15];
-				str++;
-			}
+	if (src == NULL || *src == '\0' || dest == NULL || destlen == 0) {
+		return(-1);
+	}
+
+	while (*s != '\0' && p < end) {
+		// RFC3986 2.3
+		if (visalnum((int)*s)
+			|| *p == '-'
+			|| *p == '.'
+			|| *p ==  '_'
+			|| *p ==  '~') {
+			*p++ = *s++;
+		} else if (p + 4 >= end) { // % hex hex NULL
+			p = end; // not enough space
+		} else {
+			*p++ = '%';
+			unsigned char foo = *p;
+			*p++ = hexchars[foo >> 4];
+			*p++ = hexchars[*s & 15];
+			s++;
 		}
-		str = va_arg(ap, const char *);
 	}
-	if (b < e)
-		*b = '\0';
-	b++;
-	if (b > e) {
-		WS_Release(ctx->ws, 0);
-		return (NULL);
-	} else {
-		e = b;
-		b = ctx->ws->f;
-		WS_Release(ctx->ws, e - b);
-		return (b);
+	if (p < end)
+		*p = '\0';
+	p++;
+	if (p >= end) {
+		memset(dest, '\0', destlen);
+		return (-1);
 	}
+	return (p-dest);
+
 }
-*/
+
 
 uint32_t
 urldecode(char * src, char *dest, int destlen)
@@ -134,7 +130,17 @@ urldecode(char * src, char *dest, int destlen)
 
 
 #ifndef NDEBUG
-int main() {
+void test_enc() {
+	char src[] = "foo and bar with a / in it";
+	int len;
+	int buflen = 100;
+	char dst[buflen];
+	memset(dst, '\0', buflen);
+	len = urlencode((char *)&src, (char *)&dst, buflen);
+	printf("len=%i dst=\"%s\"\n", len, dst);
+}
+
+void test_dec() {
 	int len;
 	int buflen = 100;
 	// char src[] = "foo%20bar";
@@ -144,5 +150,9 @@ int main() {
 	memset(dst, '\0', buflen);
 	len = urldecode((char *)&src, (char *)&dst, buflen);
 	printf("len=%i dst=\"%s\"\n", len, dst);
+}
+
+int main() {
+	test_enc();
 }
 #endif
