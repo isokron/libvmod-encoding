@@ -1,5 +1,5 @@
 /*
  *
  */
-uint32_t urlencode(const char *, char *, int);
-uint32_t urldecode(const char *, char *, int);
+unsigned urlencode(const char *, char *, int);
+unsigned urldecode(const char *, char *, int);

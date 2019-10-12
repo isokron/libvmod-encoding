@@ -29,8 +29,7 @@ hex_to_int(char c)
 	return (-1);
 }
 
-
-uint32_t
+unsigned
 urlencode(const char *src, char *dest, int destlen)
 {
 	char *s = (char *)src;  // reading ptr
@@ -67,11 +66,10 @@ urlencode(const char *src, char *dest, int destlen)
 		return (-1);
 	}
 	return (p-dest);
-
 }
 
 
-uint32_t
+unsigned
 urldecode(const char *src, char *dest, int destlen)
 {
 	char *s = (char *)src;
@@ -139,6 +137,7 @@ static char *cases[] = {
 	"https://example.org/index.html#fragment",
 	"https://example.org/index.html?foo=bar&baz=qux#fragment",
 	"utf8-åæø-ÅÆØ-all-the-way",
+	"[``>>>>>>>>>>>>>>>>>>>>>>>> >>>>"
 };
 int n_cases = sizeof(cases) / sizeof(cases[0]);
 
@@ -163,27 +162,56 @@ void test_dec() {
 	assert(strcmp("foo and bar", dst) == 0);
 }
 
-void test_both() {
-	int len, buflen = 100;
+void enc_and_dec(char *input) {
+	int buflen = 100;
+	int inputsz = strlen(input);
+	if (inputsz*3 > buflen) {
+		buflen = inputsz*3;
+	}
+	int len;
 	char dst[buflen];
 	char decoded[buflen];
 
+	memset(dst, '\0', buflen);
+	len = urlencode(input, (char *)&dst, buflen);
+	if (len < 0) return;
+	// printf("\nlen=%i dst=\"%s\"\n", len, dst);
+
+	memset(decoded, '\0', buflen);
+	len = urldecode(dst, (char *)&decoded, buflen);
+	if (len < 0) return;
+
+	// printf("len=%i decoded=\"%s\"\n", len, decoded);
+	assert(strcmp(decoded, input) == 0);
+}
+
+void test_both(void) {
 	for (int i=0; i<n_cases; i++) {
-		memset(dst, '\0', buflen);
-		len = urlencode(cases[i], (char *)&dst, buflen);
-		printf("\nlen=%i dst=\"%s\"\n", len, dst);
-
-		memset(decoded, '\0', buflen);
-		len = urldecode(dst, (char *)&decoded, buflen);
-		printf("len=%i decoded=\"%s\"\n", len, decoded);
-
-		assert(strcmp(decoded, cases[i]) == 0);
+		enc_and_dec(cases[i]);
 	}
 }
 
+#include <ctype.h>
+int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
+	for (int i=0; i<sz; i++) {
+		if (!(isalnum(data[i]) || isspace(data[i]) || ispunct(data[i]))) {
+			return(0);
+		}
+	}
+
+	char buf[sz+1];
+	memcpy(buf, data, sz);
+	buf[sz+1] = '\0';
+	// printf("%s\n", buf);
+	enc_and_dec(buf);
+	return(0);
+}
+
+#ifndef FUZZING
 int main() {
 	test_enc();
  	test_dec();
 	test_both();
 }
+#endif   // FUZZING
 #endif
