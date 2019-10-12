@@ -11,10 +11,8 @@ varnish v1 -vcl+backend {
 
 	sub vcl_deliver {
 		set resp.http.encoded = encoding.b64encode(req.http.foo);
-                std.log("encoded: " + resp.http.encoded);
-
 		set resp.http.decoded = encoding.b64decode(resp.http.encoded);
-                std.log("decoded: " + resp.http.decoded);
+		set resp.http.encoded2 = encoding.b64encode(req.http.foo);
 	}
 } -start
 
@@ -23,4 +21,5 @@ client c1 {
 	rxresp
 	expect resp.http.encoded == "aGVsbG8geW91"
 	expect resp.http.decoded == "hello you"
+	expect resp.http.encoded2 == "aGVsbG8geW91"
 } -run

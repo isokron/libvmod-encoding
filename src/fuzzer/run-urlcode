@@ -1,4 +1,4 @@
 #!/bin/bash
 
-clang -D FUZZING -g -O1 -fsanitize=fuzzer ../urlcode.c  && ./a.out -max_len=100  -jobs=36 corpus/
+clang -D TESTRUNNER -D FUZZING -g -O1 -fsanitize=fuzzer ../urlcode.c  && ./a.out -max_len=100  -jobs=36 corpus/
 

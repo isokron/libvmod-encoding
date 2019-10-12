@@ -129,7 +129,7 @@ urldecode(const char *src, char *dest, int destlen)
 }
 
 
-#ifndef NDEBUG
+#ifdef TESTRUNNER
 #include <assert.h>
 
 static char *cases[] = {
@@ -206,12 +206,12 @@ int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
 	enc_and_dec(buf);
 	return(0);
 }
+#endif   // TESTRUNNER
 
-#ifndef FUZZING
+/*
 int main() {
 	test_enc();
  	test_dec();
 	test_both();
 }
-#endif   // FUZZING
-#endif
+*/

@@ -244,10 +244,9 @@ pg_b64_dec_len(int srclen)
 }
 
 
-#ifndef NDEBUG
+#ifdef TESTRUNNER
 #include <stdio.h>
-
-void enc_and_dec(char * buf) {
+void b64enc_and_dec(char * buf) {
 	int enclen = pg_b64_enc_len(strlen(buf)) * 2;
 
 	char encoded[enclen];
@@ -268,9 +267,7 @@ void enc_and_dec(char * buf) {
 	printf("Decoded text is: \"%s\" (%d==%lu bytes in %lu byte buffer)", decoded, len, strlen(decoded), sizeof(decoded) );
 	return;
 }
-#endif
 
-#ifdef FUZZER
 #include <ctype.h>
 int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
 	for (int i=0; i<sz; i++) {
@@ -282,15 +279,14 @@ int LLVMFuzzerTestOneInput(u_int8_t *data, size_t sz) {
 	memcpy(buf, data, sz);
 	buf[sz+1] = '\0';
 	printf("%s\n", buf);
-	enc_and_dec(buf);
+	b64enc_and_dec(buf);
 	return(0);
 }
-#else
-
-int main() {
-	char foo[] = "super æøå %$! secret string";
-	enc_and_dec((char *)&foo);
-}
-
 #endif
 
+/*
+int main() {
+	char foo[] = "super æøå %$! secret string";
+	b64enc_and_dec((char *)&foo);
+}
+*/
