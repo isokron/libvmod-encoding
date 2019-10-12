@@ -2,7 +2,7 @@
 # Copyright Isokron AS (c) 2019
 #
 
-$Module encoding 3 Encoding VMOD
+$Module encoding 3 "String encoding module"
 
 DESCRIPTION
 ===========
