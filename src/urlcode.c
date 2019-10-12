@@ -149,7 +149,7 @@ void test_enc() {
 		memset(dst, '\0', buflen);
 		assert(strlen(cases[i]) < buflen);
 		len = urlencode(cases[i], (char *)&dst, buflen);
-		printf("len=%i dst=\"%s\"\n", len, dst);
+		// printf("len=%i dst=\"%s\"\n", len, dst);
 	}
 }
 
@@ -159,7 +159,8 @@ void test_dec() {
 	char dst[buflen];
 	memset(dst, '\0', buflen);
 	len = urldecode((char *)&src, (char *)&dst, buflen);
-	printf("len=%i dst=\"%s\"\n", len, dst);
+	// printf("len=%i dst=\"%s\"\n", len, dst);
+	assert(strcmp("foo and bar", dst) == 0);
 }
 
 void test_both() {
@@ -168,10 +169,9 @@ void test_both() {
 	char decoded[buflen];
 
 	for (int i=0; i<n_cases; i++) {
-		printf("\n");
 		memset(dst, '\0', buflen);
 		len = urlencode(cases[i], (char *)&dst, buflen);
-		printf("len=%i dst=\"%s\"\n", len, dst);
+		printf("\nlen=%i dst=\"%s\"\n", len, dst);
 
 		memset(decoded, '\0', buflen);
 		len = urldecode(dst, (char *)&decoded, buflen);
